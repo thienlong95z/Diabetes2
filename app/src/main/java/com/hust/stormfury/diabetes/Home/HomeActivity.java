@@ -17,12 +17,27 @@ import com.google.firebase.auth.FirebaseUser;
 import com.hust.stormfury.diabetes.Login.LoginActivity;
 import com.hust.stormfury.diabetes.R;
 import com.hust.stormfury.diabetes.Utils.BottomNavigationViewHelper;
+import com.hust.stormfury.diabetes.Utils.MainFeedListAdapter;
 import com.hust.stormfury.diabetes.Utils.SectionsPagerAdapter;
 import com.hust.stormfury.diabetes.Utils.UniversalImageLoader;
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements MainFeedListAdapter.OnLoadMoreItemsListener {
+
+    @Override
+    public void onLoadMoreItems() {
+        Log.d(TAG, "onLoadMoreItems: displaying more photos");
+        HomeFragment fragment = (HomeFragment)getSupportFragmentManager()
+                .findFragmentByTag("android:switcher:" + R.id.viewpager_container + ":" + mViewPager.getCurrentItem());
+        if(fragment != null){
+            fragment.displayMorePhotos();
+        }
+//        MessagesFragment fragment2 = (MessagesFragment)getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager_container + ":" + mViewPager.getCurrentItem());
+//        if(fragment2 != null){
+//            fragment2.displayMoreMessages();
+//        }
+    }
 
     private static final String TAG = "HomeActivity";
     private static final int ACTIVITY_NUM = 0;
@@ -73,6 +88,19 @@ public class HomeActivity extends AppCompatActivity {
         tabLayout.getTabAt(2).setIcon(R.drawable.ic_arrow);
 
     }
+
+    /**
+     * return the current tab number
+     * 0 = GalleryFragment
+     * 1 = PhotoFragment
+     * @return
+     */
+    public int getCurrentTabNumber(){
+        return mViewPager.getCurrentItem();
+    }
+
+
+
     /**
      * Bottom NavigationView Setup
      */

@@ -23,11 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.hust.stormfury.diabetes.Home.HomeActivity;
 import com.hust.stormfury.diabetes.R;
 
-/**
- * @author Akshat Pandey
- * @version 1.0
- * @date 17-10-2017
- */
+
 
 public class LoginActivity extends AppCompatActivity {
 

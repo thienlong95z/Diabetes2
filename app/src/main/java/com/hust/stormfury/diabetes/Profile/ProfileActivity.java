@@ -16,7 +16,7 @@ import com.hust.stormfury.diabetes.models.Photo;
 
 public class ProfileActivity extends AppCompatActivity implements ProfileFragment.OnGridImageSelectedListener{
     private static final String TAG = "ProfileActivity";
-    private static final int ACTIVITY_NUM = 4;
+    private static final int ACTIVITY_NUM = 2;
 
     private ProgressBar mProgressBar;
     private ImageView profilePhoto;

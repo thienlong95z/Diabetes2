@@ -223,7 +223,8 @@ public class FirebaseMethods {
         photo.setTags(tags);
         photo.setUser_id(FirebaseAuth.getInstance().getCurrentUser().getUid());
         photo.setPhoto_id(newPhotoKey);
-
+        photo.setPredicted_food("");
+        photo.setCalories("");
         //insert into database
         myRef.child(mContext.getString(R.string.dbname_user_photos))
                 .child(FirebaseAuth.getInstance().getCurrentUser()
@@ -371,7 +372,7 @@ public class FirebaseMethods {
      */
     public void addNewUser(String email, String username, String description, String website, String profile_photo) {
 
-        User user = new User(userID, email, 1, StringManipulation.condenseUsername(username));
+        User user = new User( userID,  1,  email,  StringManipulation.condenseUsername(username) );
 
         myRef.child(mContext.getString(R.string.db_name_users))
                 .child(userID)

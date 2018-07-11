@@ -16,20 +16,23 @@ public class Photo implements Parcelable {
     private String photo_id;
     private String user_id;
     private String tags;
-
+    private String predicted_food;
+    private String calories;
 
     public Photo() {
 
     }
 
     public Photo(String caption, String date_created, String image_path, String photo_id,
-                 String user_id, String tags) {
+                 String user_id, String tags, String predicted_food, String calories) {
         this.caption = caption;
         this.date_created = date_created;
         this.image_path = image_path;
         this.photo_id = photo_id;
         this.user_id = user_id;
         this.tags = tags;
+        this.predicted_food = predicted_food;
+        this.calories = calories;
     }
 
     protected Photo(Parcel in) {
@@ -39,6 +42,8 @@ public class Photo implements Parcelable {
         photo_id = in.readString();
         user_id = in.readString();
         tags = in.readString();
+        predicted_food = in.readString();
+        calories = in.readString();
     }
 
     @Override
@@ -49,6 +54,8 @@ public class Photo implements Parcelable {
         dest.writeString(photo_id);
         dest.writeString(user_id);
         dest.writeString(tags);
+        dest.writeString(predicted_food);
+        dest.writeString(calories);
     }
 
     @Override
@@ -121,6 +128,21 @@ public class Photo implements Parcelable {
         this.tags = tags;
     }
 
+    public String getPredicted_food() {
+        return predicted_food;
+    }
+
+    public void setPredicted_food(String predicted_food) {
+        this.predicted_food = predicted_food;
+    }
+
+    public String getCalories() {
+        return calories;
+    }
+
+    public void setCalories(String calories) {
+        this.calories = calories;
+    }
 
     @Override
     public String toString() {
@@ -131,6 +153,8 @@ public class Photo implements Parcelable {
                 ", photo_id='" + photo_id + '\'' +
                 ", user_id='" + user_id + '\'' +
                 ", tags='" + tags + '\'' +
+                ", predicted_food='" + predicted_food + '\'' +
+                ", calories='" + calories + '\'' +
                 '}';
     }
 }

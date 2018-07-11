@@ -56,7 +56,7 @@ public class ProfileFragment extends Fragment {
     }
     OnGridImageSelectedListener mOnGridImageSelectedListener;
 
-    private static final int ACTIVITY_NUM = 4;
+    private static final int ACTIVITY_NUM = 2;
     private static final int NUM_GRID_COLUMNS = 3;
 
     //firebase
@@ -75,6 +75,7 @@ public class ProfileFragment extends Fragment {
     private BottomNavigationViewEx bottomNavigationViewEx;
     private Context mContext;
 
+    private int mPostsCount = 0;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,6 +98,12 @@ public class ProfileFragment extends Fragment {
         mFirebaseMethods = new FirebaseMethods(getActivity());
         Log.d(TAG, "onCreateView: started.");
 
+        setupBottomNavigationView();
+        setupToolbar();
+        setupFirebaseAuth();
+        setupGridView();
+        getPostsCount();
+
         TextView editProfile = (TextView) view.findViewById(R.id.textEditProfile);
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,10 +116,6 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        setupBottomNavigationView();
-        setupToolbar();
-        setupFirebaseAuth();
-        setupGridView();
 
         return view;
     }
@@ -219,6 +222,29 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+    }
+
+    private void getPostsCount(){
+        mPostsCount = 0;
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        Query query = reference.child(getString(R.string.dbname_user_photos))
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot singleSnapshot :  dataSnapshot.getChildren()){
+                    Log.d(TAG, "onDataChange: found post:" + singleSnapshot.getValue());
+                    mPostsCount++;
+                }
+                mPosts.setText(String.valueOf(mPostsCount));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     /**

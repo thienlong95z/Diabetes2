@@ -1,6 +1,7 @@
 package com.hust.stormfury.diabetes.Utils;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,9 +45,9 @@ import java.util.TimeZone;
  * Created by StormFury on 3/14/2018.
  */
 
-public class ViewPostFragment extends android.support.v4.app.Fragment{
-    private static final String TAG = "ViewPostFragment";
+public class ViewPostFragment extends android.support.v4.app.Fragment {
 
+    private static final String TAG = "ViewPostFragment";
 
     public interface OnCommentThreadSelectedListener{
         void onCommentThreadSelectedListener(Photo photo);
@@ -69,8 +70,8 @@ public class ViewPostFragment extends android.support.v4.app.Fragment{
     //widgets
     private SquareImageView mPostImage;
     private BottomNavigationViewEx bottomNavigationView;
-    private TextView mBackLabel, mCaption, mUsername, mTimestamp, mLikes, mComments;
-    private ImageView mBackArrow, mEllipses, mHeartRed, mHeartWhite, mProfileImage, mComment;
+    private TextView mBackLabel, mCaption, mUsername, mTimestamp;
+    private ImageView mBackArrow, mEllipses, mHeartRed, mHeartWhite, mProfileImage;
 
 
     //vars
@@ -79,10 +80,6 @@ public class ViewPostFragment extends android.support.v4.app.Fragment{
     private String photoUsername = "";
     private String profilePhotoUrl = "";
     private UserAccountSettings mUserAccountSettings;
-    private GestureDetector mGestureDetector;
-    private Boolean mLikedByCurrentUser;
-    private StringBuilder mUsers;
-    private String mLikesString = "";
     private User mCurrentUser;
 
     @Nullable
@@ -99,10 +96,19 @@ public class ViewPostFragment extends android.support.v4.app.Fragment{
         mEllipses = (ImageView) view.findViewById(R.id.ivEllipses);
         mProfileImage = (ImageView) view.findViewById(R.id.profile_photo);
 
+        try{
+            mPhoto = getPhotoFromBundle();
+            UniversalImageLoader.setImage(mPhoto.getImage_path(), mPostImage, null, "");
+            mActivityNumber = getActivityNumFromBundle();
+
+        }catch (NullPointerException e){
+            Log.e(TAG, "onCreateView: NullPointerException: " + e.getMessage() );
+        }
+
         setupFirebaseAuth();
         setupBottomNavigationView();
-        // getPhotoDetails();
-        // setupWidgets();
+//        getPhotoDetails();
+        //setupWidgets();
 
         return view;
     }
@@ -130,7 +136,6 @@ public class ViewPostFragment extends android.support.v4.app.Fragment{
                         newPhoto.setUser_id(objectMap.get(getString(R.string.field_user_id)).toString());
                         newPhoto.setDate_created(objectMap.get(getString(R.string.field_date_created)).toString());
                         newPhoto.setImage_path(objectMap.get(getString(R.string.field_image_path)).toString());
-
 
                         mPhoto = newPhoto;
 
@@ -160,48 +165,14 @@ public class ViewPostFragment extends android.support.v4.app.Fragment{
             init();
         }
     }
-
-    private void setupWidgets(){
-        String timestampDiff = getTimestampDifference();
-        if(!timestampDiff.equals("0")){
-            mTimestamp.setText(timestampDiff + " DAYS AGO");
-        }else{
-            mTimestamp.setText("TODAY");
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try{
+            mOnCommentThreadSelectedListener = (OnCommentThreadSelectedListener) getActivity();
+        }catch (ClassCastException e){
+            Log.e(TAG, "onAttach: ClassCastException: " + e.getMessage() );
         }
-        UniversalImageLoader.setImage(mUserAccountSettings.getProfile_photo(), mProfileImage, null, "");
-        mUsername.setText(mUserAccountSettings.getUsername());
-        mCaption.setText(mPhoto.getCaption());
-
-        mBackArrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: navigating back");
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
-    }
-
-    private void getPhotoDetails(){
-        Log.d(TAG, "getPhotoDetails: retrieving photo details.");
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        Query query = reference
-                .child(getString(R.string.dbname_user_account_settings))
-                .orderByChild(getString(R.string.field_user_id))
-                .equalTo(mPhoto.getUser_id());
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for ( DataSnapshot singleSnapshot :  dataSnapshot.getChildren()){
-                    mUserAccountSettings = singleSnapshot.getValue(UserAccountSettings.class);
-                }
-                //setupWidgets();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "onCancelled: query cancelled.");
-            }
-        });
     }
 
     private void getCurrentUser(){
@@ -225,6 +196,49 @@ public class ViewPostFragment extends android.support.v4.app.Fragment{
         });
     }
 
+
+    private void getPhotoDetails(){
+        Log.d(TAG, "getPhotoDetails: retrieving photo details.");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        Query query = reference
+                .child(getString(R.string.dbname_user_account_settings))
+                .orderByChild(getString(R.string.field_user_id))
+                .equalTo(mPhoto.getUser_id());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for ( DataSnapshot singleSnapshot :  dataSnapshot.getChildren()){
+                    mUserAccountSettings = singleSnapshot.getValue(UserAccountSettings.class);
+                }
+                setupWidgets();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "onCancelled: query cancelled.");
+            }
+        });
+    }
+
+    private void setupWidgets(){
+        String timestampDiff = getTimestampDifference();
+        if(!timestampDiff.equals("0")){
+            mTimestamp.setText(timestampDiff + " DAYS AGO");
+        }else{
+            mTimestamp.setText("TODAY");
+        }
+        UniversalImageLoader.setImage(mUserAccountSettings.getProfile_photo(), mProfileImage, null, "");
+        mUsername.setText(mUserAccountSettings.getUsername());
+        mCaption.setText(mPhoto.getCaption());
+        mBackArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating back");
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
+    }
+
     /**
      * Returns a string representing the number of days ago the post was made
      * @return
@@ -234,7 +248,7 @@ public class ViewPostFragment extends android.support.v4.app.Fragment{
 
         String difference = "";
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.CHINESE);
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Bangkok"));//google 'android list of timezones'
         Date today = c.getTime();
         sdf.format(today);
@@ -249,7 +263,6 @@ public class ViewPostFragment extends android.support.v4.app.Fragment{
         }
         return difference;
     }
-
 
     /**
      * retrieve the activity number from the incoming bundle from profileActivity interface

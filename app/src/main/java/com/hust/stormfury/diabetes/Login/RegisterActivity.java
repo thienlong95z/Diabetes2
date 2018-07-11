@@ -25,11 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.hust.stormfury.diabetes.R;
 import com.hust.stormfury.diabetes.Utils.FirebaseMethods;
 
-/**
- * @author Akshat Pandey
- * @version 1.0
- * @date 17-10-2017
- */
+
 
 public class RegisterActivity extends AppCompatActivity {
 
